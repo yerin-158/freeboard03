@@ -2,6 +2,7 @@ package com.freeboard03.domain.pet;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Id;
@@ -11,7 +12,7 @@ import javax.persistence.Id;
 public class PetEntity {
 
     @Id
-    private long id;
+    private ObjectId id;
 
     private String kind;
 
