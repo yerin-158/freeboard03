@@ -24,10 +24,11 @@ public class PetEntity {
     private List<PetEntity> sibling;
 
     @Builder
-    public PetEntity(String kind, String name, int age){
+    public PetEntity(String kind, String name, int age, List<PetEntity> sibling){
         this.kind = kind;
         this.name = name;
         this.age = age;
+        this.sibling = sibling;
     }
 
 }
