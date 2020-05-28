@@ -14,7 +14,7 @@
 
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="dataSource" />
-        <property name="packagesToScan" value="com.freeboard01.domain" />
+        <property name="packagesToScan" value="com.freeboard03.domain" />
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
         </property>
@@ -40,11 +40,11 @@
     </bean>
 
 
-    <jpa:repositories base-package="com.freeboard01.domain" />
+    <jpa:repositories base-package="com.freeboard03.domain" />
 
     <tx:annotation-driven />
 
-    <context:component-scan base-package="com.freeboard01.domain">
+    <context:component-scan base-package="com.freeboard03.domain">
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
