@@ -1,11 +1,14 @@
 package com.freeboard03.domain.pet;
 
 import com.mongodb.client.result.DeleteResult;
+import org.aspectj.lang.annotation.Before;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -31,14 +34,21 @@ public class PetTest {
     @Autowired
     MongoTemplate mongoTemplate;
 
+    MongoOperations mongoOperations;
+
+    @BeforeEach
+    public void init(){
+        mongoOperations = mongoTemplate;
+    }
+
     @Test
     public void insertTest() {
         PetEntity pet = PetEntity.builder().kind("CAT").name("나비").age(2).build();
-        mongoTemplate.insert(pet);
+        mongoOperations.insert(pet);
 
         Query query = new Query(Criteria.where("_id").is(pet.getId()));
 
-        PetEntity findPet = mongoTemplate.findOne(query, PetEntity.class, "pets");
+        PetEntity findPet = mongoOperations.findOne(query, PetEntity.class, "pets");
 
         assertThat(pet.getId(), equalTo(findPet.getId()));
         assertThat(pet.getName(), equalTo(findPet.getName()));
@@ -53,7 +63,7 @@ public class PetTest {
         insertFindAllTestData(KIND, INSERT_SIZE);
 
         Query query = new Query(Criteria.where("kind").is(KIND));
-        List<PetEntity> findPets = mongoTemplate.find(query, PetEntity.class);
+        List<PetEntity> findPets = mongoOperations.find(query, PetEntity.class);
 
         assertThat(findPets.size(), equalTo(INSERT_SIZE));
     }
@@ -61,7 +71,7 @@ public class PetTest {
     void insertFindAllTestData(String KIND, int INSERT_SIZE) {
         for (int i = 0; i < INSERT_SIZE; ++i) {
             PetEntity pet = PetEntity.builder().age(2).kind(KIND).name("Test Name").build();
-            mongoTemplate.insert(pet);
+            mongoOperations.insert(pet);
         }
     }
 
@@ -69,7 +79,7 @@ public class PetTest {
     @DisplayName("pet을 저장한 뒤 해당 도큐먼트의 name을 변경하고 age를 5 더한다.")
     public void updateTest() {
         PetEntity pet = PetEntity.builder().kind("CAT").name("나비").age(0).build();
-        mongoTemplate.insert(pet);
+        mongoOperations.insert(pet);
 
         Query query = new Query(Criteria.where("_id").is(pet.getId()));
 
@@ -77,9 +87,9 @@ public class PetTest {
         int increaseAge = 5;
         Update update = Update.update("name", updatedName).inc("age", increaseAge);
 
-        mongoTemplate.updateFirst(query, update, PetEntity.class);
+        mongoOperations.updateFirst(query, update, PetEntity.class);
 
-        PetEntity findPet = mongoTemplate.findOne(query, PetEntity.class);
+        PetEntity findPet = mongoOperations.findOne(query, PetEntity.class);
         assertThat(findPet.getName(), equalTo(updatedName));
         assertThat(findPet.getAge(), equalTo(increaseAge));
     }
@@ -89,7 +99,7 @@ public class PetTest {
     public void updateTest2() {
         int age = 2;
         PetEntity pet = PetEntity.builder().kind("CAT").name("나비").age(age).build();
-        mongoTemplate.insert(pet);
+        mongoOperations.insert(pet);
 
         Query query = new Query(Criteria.where("_id").is(pet.getId()));
 
@@ -97,9 +107,9 @@ public class PetTest {
         int decreaseAge = -1 * age;
         Update update = Update.update("name", updatedName).inc("age", decreaseAge);
 
-        mongoTemplate.updateFirst(query, update, PetEntity.class);
+        mongoOperations.updateFirst(query, update, PetEntity.class);
 
-        PetEntity findPet = mongoTemplate.findOne(query, PetEntity.class);
+        PetEntity findPet = mongoOperations.findOne(query, PetEntity.class);
         assertThat(findPet.getName(), equalTo(updatedName));
         assertThat(findPet.getAge(), equalTo(0));
     }
@@ -113,7 +123,7 @@ public class PetTest {
 
         Query query = new Query(Criteria.where("kind").is(KIND));
 
-        DeleteResult result = mongoTemplate.remove(query, PetEntity.class);
+        DeleteResult result = mongoOperations.remove(query, PetEntity.class);
         assertThat(String.valueOf(result.getDeletedCount()), equalTo(String.valueOf(INSERT_SIZE)));
     }
 
@@ -126,7 +136,7 @@ public class PetTest {
 
         Query query = new Query(Criteria.where("kind").is(KIND));
 
-        List<PetEntity> deletedDocuments = mongoTemplate.findAllAndRemove(query, PetEntity.class);
+        List<PetEntity> deletedDocuments = mongoOperations.findAllAndRemove(query, PetEntity.class);
         assertThat(deletedDocuments.size(), equalTo(INSERT_SIZE));
         assertThat(deletedDocuments.stream().map(document -> document.getKind()).distinct().collect(Collectors.joining()), equalTo(KIND));
     }
@@ -136,11 +146,11 @@ public class PetTest {
     public void insertTest2() {
         final int SIBLING_SIZE = 5;
         PetEntity pet = PetEntity.builder().kind("DOG").age(7).name("바둑이").sibling(getPets(SIBLING_SIZE)).build();
-        mongoTemplate.insert(pet);
+        mongoOperations.insert(pet);
 
         Query query = new Query(Criteria.where("_id").is(pet.getId()));
 
-        PetEntity findPet = mongoTemplate.findOne(query, PetEntity.class);
+        PetEntity findPet = mongoOperations.findOne(query, PetEntity.class);
         assertThat(pet.getSibling().size(), equalTo(findPet.getSibling().size()));
     }
 
@@ -158,7 +168,7 @@ public class PetTest {
     public void insertTest3() {
         final int SIBLING_SIZE = 3;
         List<PetEntity> sibling = getPets(SIBLING_SIZE);
-        mongoTemplate.insertAll(sibling);
+        mongoOperations.insertAll(sibling);
 
         updateSibling(SIBLING_SIZE, sibling);
 
@@ -175,7 +185,7 @@ public class PetTest {
         for (int i = 0; i < SIBLING_SIZE; ++i) {
             ObjectId nowPetId = sibling.get(i).getId();
             Query query = new Query(Criteria.where("_id").is(nowPetId));
-            mongoTemplate.updateFirst(query,
+            mongoOperations.updateFirst(query,
                     Update.update("sibling", sibling.stream().filter(pet -> pet.getId().equals(nowPetId) == false).collect(Collectors.toList())),
                     PetEntity.class);
         }
@@ -183,7 +193,7 @@ public class PetTest {
 
     List<PetEntity> getUpdatedPetEntities(List<PetEntity> sibling) {
         Query query = new Query(Criteria.where("_id").in(sibling.stream().map(pet -> pet.getId()).collect(Collectors.toList())));
-        return mongoTemplate.find(query, PetEntity.class);
+        return mongoOperations.find(query, PetEntity.class);
     }
 
     private String randomString() {
