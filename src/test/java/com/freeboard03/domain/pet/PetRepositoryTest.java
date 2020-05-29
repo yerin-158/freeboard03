@@ -1,15 +1,11 @@
 package com.freeboard03.domain.pet;
 
-import com.mongodb.client.result.DeleteResult;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -70,7 +66,7 @@ public class PetRepositoryTest {
 
         String updatedName = "노랑이";
         int increaseAge = 5;
-        PetEntity updatedPet = PetEntity.builder().age(pet.getAge()+increaseAge).name(updatedName).kind(pet.getKind()).build();
+        PetEntity updatedPet = PetEntity.builder().age(pet.getAge() + increaseAge).name(updatedName).kind(pet.getKind()).build();
 
         pet.update(updatedPet);
 
@@ -90,7 +86,7 @@ public class PetRepositoryTest {
 
         String updatedName = "노랑이";
         int decreaseAge = -1 * age;
-        PetEntity updatedPet = PetEntity.builder().age(pet.getAge()+decreaseAge).name(updatedName).build();
+        PetEntity updatedPet = PetEntity.builder().age(pet.getAge() + decreaseAge).name(updatedName).build();
 
         pet.update(updatedPet);
 
@@ -105,14 +101,14 @@ public class PetRepositoryTest {
     @Test
     @DisplayName("Persistence Context 테스트")
     @Disabled
-    public void persistenceTest(){
+    public void persistenceTest() {
         int age = 2;
         PetEntity pet = PetEntity.builder().kind("CAT").name("나비").age(age).build();
         petRepository.save(pet);
 
         String updatedName = "노랑이";
         int decreaseAge = -1 * age;
-        PetEntity updatedPet = PetEntity.builder().age(pet.getAge()+decreaseAge).name(updatedName).build();
+        PetEntity updatedPet = PetEntity.builder().age(pet.getAge() + decreaseAge).name(updatedName).build();
         updatedPet.setId(pet.getId());
 
         // pet과 같은 id를 가진 updatedPet을 save = update
@@ -158,7 +154,7 @@ public class PetRepositoryTest {
 
     @Test
     @DisplayName("pet 컬렉션을 멤버변수로 가지고 있는 pet 객체와 멤버 변수의 M:M 관계를 유자하여 insert한다.")
-    /*public void insertTest3() {
+    public void insertTest3() {
         final int SIBLING_SIZE = 3;
         List<PetEntity> sibling = getPets(SIBLING_SIZE);
         petRepository.saveAll(sibling);
@@ -174,22 +170,21 @@ public class PetRepositoryTest {
         }
     }
 
-    void updateSibling(int SIBLING_SIZE, List<PetEntity> sibling) {
+    void updateSibling(int SIBLING_SIZE, List<PetEntity> savedPets) {
         for (int i = 0; i < SIBLING_SIZE; ++i) {
-            PetEntity nowPet = sibling.get(i);
+            PetEntity nowPet = savedPets.get(i);
+            PetEntity updatedPet = PetEntity.duplicate(nowPet);
 
-            PetEntity updatedPet = PetEntity.builder().kind(nowPet.getKind())
-                                                        .name(nowPet.getName())
-                                                        .age(nowPet.getAge())
-                                                        .sibling(sibling.stream().filter(pet -> pet.getId().equals(nowPet.getId()) == false).collect(Collectors.toList())).build();
-            nowPet.update(updatedPet);
-            petRepository.save(nowPet);
+            List<PetEntity> nowSiblings = savedPets.stream().filter(pet -> pet.getId().equals(nowPet.getId()) == false).collect(Collectors.toList());
+            updatedPet.setSibling(nowSiblings);
+
+            petRepository.save(updatedPet);
         }
     }
 
     List<PetEntity> getUpdatedPetEntities(List<PetEntity> sibling) {
         return petRepository.findAllByIdIn(sibling.stream().map(pet -> pet.getId()).collect(Collectors.toList()));
-    }*/
+    }
 
     private String randomString() {
         String id = "";

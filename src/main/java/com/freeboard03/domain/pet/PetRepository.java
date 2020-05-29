@@ -9,5 +9,8 @@ import java.util.List;
 @Repository
 public interface PetRepository extends MongoRepository<PetEntity, ObjectId> {
     List<PetEntity> findAllByKind(String kind);
+
     List<PetEntity> deleteAllByKind(String kind);
+
+    List<PetEntity> findAllByIdIn(List<ObjectId> ids);
 }
