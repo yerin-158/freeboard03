@@ -24,21 +24,28 @@ public class PetEntity {
 
     private int age;
 
+    @Setter
     private List<PetEntity> sibling;
 
     @Builder
-    public PetEntity(String kind, String name, int age, List<PetEntity> sibling){
+    public PetEntity(String kind, String name, int age, List<PetEntity> sibling) {
         this.kind = kind;
         this.name = name;
         this.age = age;
         this.sibling = sibling;
     }
 
-    public void update(PetEntity updatedPet){
+    public void update(PetEntity updatedPet) {
         Optional.ofNullable(updatedPet.getKind()).ifPresent(none -> this.kind = updatedPet.getKind());
         Optional.ofNullable(updatedPet.getName()).ifPresent(none -> this.name = updatedPet.getName());
         Optional.ofNullable(updatedPet.getAge()).ifPresent(none -> this.age = updatedPet.getAge());
         Optional.ofNullable(updatedPet.getSibling()).ifPresent(none -> this.sibling = updatedPet.getSibling());
+    }
+
+    public static PetEntity duplicate(PetEntity petEntity) {
+        PetEntity duplicatedEntity = new PetEntity(petEntity.getKind(), petEntity.getName(), petEntity.getAge(), petEntity.getSibling());
+        duplicatedEntity.setId(petEntity.getId());
+        return duplicatedEntity;
     }
 
 }
