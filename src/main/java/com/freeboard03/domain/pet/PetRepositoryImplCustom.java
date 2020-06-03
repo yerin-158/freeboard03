@@ -4,6 +4,6 @@ import org.bson.types.ObjectId;
 
 import java.util.List;
 
-public interface PetRepositoryImplCustom<T> {
-    void findById(ObjectId id, List<T> siblings);
+public interface PetRepositoryImplCustom {
+    void updateSiblingsById(ObjectId id, List<PetEntity> siblings);
 }
