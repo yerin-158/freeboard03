@@ -27,6 +27,9 @@ public class PetRepositoryTest {
     @Autowired
     PetRepository petRepository;
 
+    @Autowired
+    PetRepositoryImpl mongoOperation;
+
     @Test
     public void insertTest() {
         PetEntity pet = PetEntity.builder().kind("CAT").name("나비").age(2).build();
@@ -159,7 +162,7 @@ public class PetRepositoryTest {
         List<PetEntity> sibling = getPets(SIBLING_SIZE);
         petRepository.saveAll(sibling);
 
-        updateSibling(SIBLING_SIZE, sibling);
+        updateSiblingWithRepository(SIBLING_SIZE, sibling);
 
         List<PetEntity> updatedSibling = getUpdatedPetEntities(sibling);
 
@@ -170,7 +173,7 @@ public class PetRepositoryTest {
         }
     }
 
-    void updateSibling(int SIBLING_SIZE, List<PetEntity> savedPets) {
+    void updateSiblingWithRepository(int SIBLING_SIZE, List<PetEntity> savedPets) {
         for (int i = 0; i < SIBLING_SIZE; ++i) {
             PetEntity nowPet = savedPets.get(i);
             PetEntity updatedPet = PetEntity.duplicate(nowPet);
@@ -184,6 +187,32 @@ public class PetRepositoryTest {
 
     List<PetEntity> getUpdatedPetEntities(List<PetEntity> sibling) {
         return petRepository.findAllByIdIn(sibling.stream().map(pet -> pet.getId()).collect(Collectors.toList()));
+    }
+
+    @Test
+    @DisplayName("pet 컬렉션을 멤버변수로 가지고 있는 pet 객체와 멤버 변수의 M:M 관계를 유자하여 insert한다.")
+    public void insertTest4() {
+        final int SIBLING_SIZE = 3;
+        List<PetEntity> sibling = getPets(SIBLING_SIZE);
+        petRepository.saveAll(sibling);
+
+        updateSiblingWithMongoTemplate(SIBLING_SIZE, sibling);
+
+        List<PetEntity> updatedSibling = getUpdatedPetEntities(sibling);
+
+        for (int i = 0; i < SIBLING_SIZE; ++i) {
+            List<PetEntity> thisSibling = updatedSibling.get(i).getSibling();
+            List<ObjectId> thisSiblingIds = thisSibling.stream().map(pet -> pet.getId()).collect(Collectors.toList());
+            assertThat(thisSiblingIds, not(contains(updatedSibling.get(i).getId())));
+        }
+    }
+
+    void updateSiblingWithMongoTemplate(int SIBLING_SIZE, List<PetEntity> savedPets) {
+        for (int i = 0; i < SIBLING_SIZE; ++i) {
+            ObjectId nowPetId = savedPets.get(i).getId();
+            List<PetEntity> nowSiblings = savedPets.stream().filter(pet -> pet.getId().equals(nowPetId) == false).collect(Collectors.toList());
+            mongoOperation.updateSiblingsById(nowPetId, nowSiblings);
+        }
     }
 
     private String randomString() {
