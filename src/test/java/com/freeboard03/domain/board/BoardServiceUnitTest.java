@@ -39,10 +39,10 @@ public class BoardServiceUnitTest {
         BoardEntity boardEntity = BoardEntity.builder().contents("contents").title("title").writer(writer).build();
 
         given(mockUserRepo.findByAccountId(anyString())).willReturn(userLoggedIn.convertUserEntity());
-        given(mockBoardRepo.findById(anyLong())).willReturn(Optional.of(boardEntity));
+        given(mockBoardRepo.findById(any())).willReturn(Optional.of(boardEntity));
 
-        sut.delete(anyLong(), userLoggedIn);
-        verify(mockBoardRepo, never()).deleteById(anyLong());
+        sut.delete(any(), userLoggedIn);
+        verify(mockBoardRepo, never()).deleteById(any());
     }
 
     @Test
@@ -55,11 +55,11 @@ public class BoardServiceUnitTest {
         BoardEntity boardEntity = BoardEntity.builder().writer(userLoggedIn).contents("contents").title("title").build();
 
         given(mockUserRepo.findByAccountId(anyString())).willReturn(userLoggedIn);
-        given(mockBoardRepo.findById(anyLong())).willReturn(Optional.of(boardEntity));
-        doNothing().when(mockBoardRepo).deleteById(anyLong());
+        given(mockBoardRepo.findById(any())).willReturn(Optional.of(boardEntity));
+        doNothing().when(mockBoardRepo).deleteById(any());
 
-        sut.delete(anyLong(), userForm);
-        verify(mockBoardRepo, times(1)).deleteById(anyLong());
+        sut.delete(any(), userForm);
+        verify(mockBoardRepo, times(1)).deleteById(any());
     }
 
     @Test
@@ -73,10 +73,10 @@ public class BoardServiceUnitTest {
         BoardEntity boardEntity = BoardEntity.builder().writer(writer).contents("contents").title("title").build();
 
         given(mockUserRepo.findByAccountId(anyString())).willReturn(userLoggedInEntity);
-        given(mockBoardRepo.findById(anyLong())).willReturn(Optional.of(boardEntity));
+        given(mockBoardRepo.findById(any())).willReturn(Optional.of(boardEntity));
 
-        sut.delete(anyLong(), userLoggedIn);
-        verify(mockBoardRepo, times(1)).deleteById(anyLong());
+        sut.delete(any(), userLoggedIn);
+        verify(mockBoardRepo, times(1)).deleteById(any());
     }
 
 }
