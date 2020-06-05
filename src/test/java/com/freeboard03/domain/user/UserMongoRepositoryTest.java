@@ -19,20 +19,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class UserMongoRepositoryTest {
 
     @Autowired
-    private MgUserRepository sut;
+    private UserRepository sut;
 
-    private MgUserEntity user;
+    private UserEntity user;
 
     @BeforeEach
     private void init(){
-        user = MgUserEntity.builder().role(UserRole.NORMAL).accountId(getRandomString()).password("pass").build();
+        user = UserEntity.builder().role(UserRole.NORMAL).accountId(getRandomString()).password("pass").build();
     }
 
     @Test
     public void saveTest(){
         sut.save(user);
 
-        MgUserEntity findUser = sut.findById(user.getId()).get();
+        UserEntity findUser = sut.findById(user.getId()).get();
 
         assertThat(findUser.getAccountId(), equalTo(user.getAccountId()));
     }

@@ -1,28 +1,28 @@
 package com.freeboard03.domain.user;
 
-import com.freeboard03.domain.BaseEntity;
+import com.freeboard03.domain.MgBaseEntity;
 import com.freeboard03.domain.user.enums.UserRole;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
-@Entity
 @Getter
-@Table(name = "user")
 @NoArgsConstructor
-public class UserEntity extends BaseEntity {
+@Document(collection = "users")
+@Entity
+public class UserEntity extends MgBaseEntity {
 
-    @Column
     private String accountId;
 
-    @Column
     private String password;
 
     @Setter
-    @Column
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
