@@ -6,26 +6,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
-
-@Entity
 @Getter
-@Table(name = "board")
 @NoArgsConstructor
-@DynamicUpdate
+@Document(collection = "boards")
 public class BoardEntity extends BaseEntity {
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "writerId", nullable = false)
     private UserEntity writer;
 
     @Setter
-    @Column
     private String contents;
 
-    @Column
     private String title;
 
     @Builder
@@ -41,4 +33,5 @@ public class BoardEntity extends BaseEntity {
         this.title = newBoard.getTitle();
         return this;
     }
+
 }

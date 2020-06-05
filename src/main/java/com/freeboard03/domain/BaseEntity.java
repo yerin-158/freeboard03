@@ -2,28 +2,22 @@ package com.freeboard03.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.bson.types.ObjectId;
 
-import javax.persistence.*;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
-
 
 @Getter
 @MappedSuperclass
-public abstract class BaseEntity {
+public class BaseEntity {
 
     @Id
     @Setter
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected long id;
+    protected ObjectId id;
 
-    @CreationTimestamp
-    @Column
-    protected LocalDateTime createdAt;
+    protected LocalDateTime createdAt = LocalDateTime.now();
 
-    @UpdateTimestamp
-    @Column
-    protected LocalDateTime updatedAt;
+    protected LocalDateTime updatedAt = LocalDateTime.now();
 
 }

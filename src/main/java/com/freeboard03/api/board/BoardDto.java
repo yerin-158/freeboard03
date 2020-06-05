@@ -4,6 +4,7 @@ import com.freeboard03.api.user.UserDto;
 import com.freeboard03.domain.board.BoardEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 public class BoardDto{
 
-    private long id;
+    private ObjectId id;
     private UserDto writer;
     private String contents;
     private String title;

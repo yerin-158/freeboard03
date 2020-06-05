@@ -1,6 +1,6 @@
 package com.freeboard03.domain.user;
 
-import com.freeboard03.domain.MgBaseEntity;
+import com.freeboard03.domain.BaseEntity;
 import com.freeboard03.domain.user.enums.UserRole;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +16,7 @@ import javax.persistence.Enumerated;
 @NoArgsConstructor
 @Document(collection = "users")
 @Entity
-public class UserEntity extends MgBaseEntity {
+public class UserEntity extends BaseEntity {
 
     private String accountId;
 
