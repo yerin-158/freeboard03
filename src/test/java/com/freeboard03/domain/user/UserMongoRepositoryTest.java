@@ -1,5 +1,6 @@
 package com.freeboard03.domain.user;
 
+import com.freeboard03.domain.user.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,7 @@ public class UserMongoRepositoryTest {
 
     @BeforeEach
     private void init(){
-        user = MgUserEntity.builder().accountId(getRandomString()).password("pass").build();
+        user = MgUserEntity.builder().role(UserRole.NORMAL).accountId(getRandomString()).password("pass").build();
     }
 
     @Test
