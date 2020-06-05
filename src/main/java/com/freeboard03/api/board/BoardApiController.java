@@ -8,6 +8,7 @@ import com.freeboard03.domain.board.enums.SearchType;
 import com.freeboard03.domain.user.enums.UserExceptionType;
 import com.freeboard03.util.exception.FreeBoardException;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -44,7 +45,7 @@ public class BoardApiController {
     }
 
     @PutMapping("/{id}")
-    public void update(@RequestBody BoardForm form, @PathVariable long id) {
+    public void update(@RequestBody BoardForm form, @PathVariable ObjectId id) {
         if (httpSession.getAttribute("USER") == null) {
             throw new FreeBoardException(UserExceptionType.LOGIN_INFORMATION_NOT_FOUND);
         }
@@ -52,7 +53,7 @@ public class BoardApiController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id) {
+    public void delete(@PathVariable ObjectId id) {
         if (httpSession.getAttribute("USER") == null) {
             throw new FreeBoardException(UserExceptionType.LOGIN_INFORMATION_NOT_FOUND);
         }
