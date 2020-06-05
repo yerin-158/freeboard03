@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface UserRepository extends MongoRepository<UserEntity, ObjectId> {
     UserEntity findByAccountId(String accountId);
-    List<UserEntity> findAllByAccountIdLike(String keyword);
+    List<UserEntity> findAllByAccountIdRegex(String keyword);
 }
