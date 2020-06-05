@@ -56,7 +56,7 @@ public class BoardService {
             throw new FreeBoardException(BoardExceptionType.NO_QUALIFICATION_USER);
         }
 
-        target.update(boardForm.convertBoardEntity(target.getWriter()));
+        boardOperator.update(id, boardForm.convertBoardEntity(target.getWriter()));
     }
 
     public void delete(ObjectId id, UserForm userForm) {

@@ -16,6 +16,7 @@ import javax.transaction.Transactional;
 
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -28,6 +29,9 @@ public class BoardServiceIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BoardRepository boardRepository;
 
     private List<UserEntity> writer;
 
@@ -42,5 +46,24 @@ public class BoardServiceIntegrationTest {
         BoardForm boardForm = BoardForm.builder().title("제목입니다^^*").contents("오늘은 날씨가 좋네요").build();
         sut.post(boardForm, userForm);
 
+    }
+
+    @Test
+    public void update() {
+        String contents = "컨텐츠는 변화없음";
+        String updatedTitle = "제목 업데이트";
+
+        BoardEntity boardEntity = BoardEntity.builder().contents(contents).writer(writer.get(3)).title("title").build();
+        boardRepository.save(boardEntity);
+
+        UserForm userForm = UserForm.builder().accountId(writer.get(3).getAccountId()).password(writer.get(3).getPassword()).build();
+        BoardForm updatedForm = BoardForm.builder().title(updatedTitle).build();
+
+        sut.update(updatedForm, userForm, boardEntity.getId());
+
+        BoardEntity selectedEntity = boardRepository.findById(boardEntity.getId()).get();
+
+        assertThat(selectedEntity.getTitle(), equalTo(updatedTitle));
+        assertThat(selectedEntity.getContents(), equalTo(contents));
     }
 }
