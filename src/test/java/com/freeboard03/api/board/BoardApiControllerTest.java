@@ -4,18 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.freeboard03.api.user.UserForm;
 import com.freeboard03.domain.board.BoardEntity;
 import com.freeboard03.domain.board.BoardRepository;
+import com.freeboard03.domain.board.enums.BoardExceptionType;
 import com.freeboard03.domain.board.enums.SearchType;
 import com.freeboard03.domain.user.UserEntity;
 import com.freeboard03.domain.user.UserRepository;
+import com.freeboard03.util.exception.FreeBoardException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/applicationContext.xml", "file:src/main/webapp/WEB-INF/dispatcher-servlet.xml"})
 @Transactional
 @WebAppConfiguration
-@Rollback(value = false)
 public class BoardApiControllerTest {
 
     @Autowired
@@ -52,17 +52,17 @@ public class BoardApiControllerTest {
     private UserEntity testUser;
     private BoardEntity testBoard;
 
-    /*
+
     @BeforeEach
     public void initMvc() {
         testUser = userRepository.findAll().get(0);
         UserForm userForm = UserForm.builder().accountId(testUser.getAccountId()).password(testUser.getPassword()).build();
         mockHttpSession.setAttribute("USER", userForm);
 
-        testBoard = boardRepository.findAllByWriterId(testUser.getId()).get(0);
+        testBoard = boardRepository.findAllByWriter(testUser).get(0);
 
         mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-    }*/
+    }
 
     @Test
     @DisplayName("trailing-slash test")
@@ -81,11 +81,12 @@ public class BoardApiControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
 
         mvc.perform(post("/api/boards")
-                        .session(mockHttpSession)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(objectMapper.writeValueAsString(boardForm)))
+                .session(mockHttpSession)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(boardForm)))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{'contents':'"+boardForm.getContents()+"'}"));;
+                .andExpect(content().json("{'contents':'" + boardForm.getContents() + "'}"));
+        ;
     }
 
     @Test
@@ -94,39 +95,45 @@ public class BoardApiControllerTest {
         BoardForm updateForm = BoardForm.builder().title("제목을 입력하세요").contents("수정된 데이터입니다 ^^*").build();
         ObjectMapper objectMapper = new ObjectMapper();
 
-        mvc.perform(put("/api/boards/"+testBoard.getId())
+        mvc.perform(put("/api/boards/" + testBoard.getId())
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(updateForm)))
                 .andExpect(status().isOk());
     }
 
-    /*@Test
-    @DisplayName("잘못된 패스워드를 입력한 경우 데이터는 삭제되지 않고 false를 반환한다.")
+    @Test
+    @DisplayName("권한없는 계정으로 삭제 요청시 데이터는 삭제되지 않고 예외처리된다.")
     public void deleteTest1() throws Exception {
         UserEntity wrongUser = userRepository.findAll().get(1);
-        BoardEntity wrongBoard = boardRepository.findAllByWriterId(wrongUser.getId()).get(0);
+        BoardEntity wrongBoard = boardRepository.findAllByWriter(wrongUser).get(0);
 
-        mvc.perform(delete("/api/boards/"+wrongBoard.getId())
+        mvc.perform(delete("/api/boards/" + wrongBoard.getId())
                 .session(mockHttpSession))
-                .andExpect(status().isOk())
-                .andExpect(content().string("false"));
-    }*/
+                .andExpect(result -> assertEquals(result.getResolvedException().getClass().getCanonicalName(), FreeBoardException.class.getCanonicalName()))
+                .andExpect(result -> assertEquals(result.getResolvedException().getMessage(), BoardExceptionType.NO_QUALIFICATION_USER.getErrorMessage()))
+                .andExpect(status().isOk());
+    }
 
     @Test
-    @DisplayName("올바른 패스워드를 입력한 경우 데이터를 삭제하고 true를 반환한다.")
+    @DisplayName("권한있는 계정으로 삭제 요청 시 삭제된다.")
     public void deleteTest2() throws Exception {
-        mvc.perform(delete("/api/boards/"+testBoard.getId())
+        mvc.perform(delete("/api/boards/" + testBoard.getId())
                 .session(mockHttpSession))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("게시판 검색 테스트-타이틀")
     public void searchTest() throws Exception {
-        String keyword = "test";
-        mvc.perform(get("/api/boards?type="+SearchType.TITLE+"&keyword="+keyword)
+        final String TARGET = getRandomString();
+
+        for (int i = 0; i < 20; i++) {
+            BoardEntity entity = BoardEntity.builder().contents("content").title(TARGET + getRandomString()).writer(testUser).build();
+            boardRepository.save(entity);
+        }
+
+        mvc.perform(get("/api/boards?type=" + SearchType.TITLE + "&keyword=" + TARGET + "&page=2&size=8")
                 .session(mockHttpSession))
                 .andExpect(status().isOk());
     }
@@ -134,10 +141,24 @@ public class BoardApiControllerTest {
     @Test
     @DisplayName("게시판 검색 테스트-글 작성자")
     public void searchTest2() throws Exception {
-        String keyword = "yerin";
-        mvc.perform(get("/api/boards?type="+SearchType.WRITER+"&keyword="+keyword)
+        String keyword = testUser.getAccountId();
+        mvc.perform(get("/api/boards?type=" + SearchType.WRITER + "&keyword=" + keyword)
                 .session(mockHttpSession))
                 .andExpect(status().isOk());
+    }
+
+
+    private String getRandomString() {
+        String id = "";
+        for (int i = 0; i < 10; i++) {
+            double dValue = Math.random();
+            if (i % 2 == 0) {
+                id += (char) ((dValue * 26) + 65);   // 대문자
+                continue;
+            }
+            id += (char) ((dValue * 26) + 97); // 소문자
+        }
+        return id;
     }
 
 }
