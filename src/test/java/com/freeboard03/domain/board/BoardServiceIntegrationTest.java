@@ -58,7 +58,7 @@ public class BoardServiceIntegrationTest {
         UserForm userForm = UserForm.builder().accountId(writer.get(3).getAccountId()).password(writer.get(3).getPassword()).build();
         BoardForm updatedForm = BoardForm.builder().title(updatedTitle).build();
 
-        sut.update(updatedForm, userForm, boardEntity.getId());
+        sut.update(updatedForm, userForm, boardEntity.getId().toHexString());
 
         BoardEntity selectedEntity = boardRepository.findById(boardEntity.getId()).get();
 

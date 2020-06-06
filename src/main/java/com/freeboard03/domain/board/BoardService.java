@@ -45,26 +45,26 @@ public class BoardService {
         return boardRepository.save(boardForm.convertBoardEntity(user));
     }
 
-    public void update(BoardForm boardForm, UserForm userForm, ObjectId id) {
+    public void update(BoardForm boardForm, UserForm userForm, String id) {
         UserEntity user = Optional.of(userRepository.findByAccountId(userForm.getAccountId())).orElseThrow(() -> new FreeBoardException(UserExceptionType.NOT_FOUND_USER));
-        BoardEntity target = Optional.of(boardRepository.findById(id).get()).orElseThrow(() -> new FreeBoardException(BoardExceptionType.NOT_FOUNT_CONTENTS));
+        BoardEntity target = Optional.of(boardRepository.findById(new ObjectId(id)).get()).orElseThrow(() -> new FreeBoardException(BoardExceptionType.NOT_FOUNT_CONTENTS));
 
         if (IsWriterEqualToUserLoggedIn.confirm(target.getWriter(), user) == false && HaveAdminRoles.confirm(user) == false) {
             throw new FreeBoardException(BoardExceptionType.NO_QUALIFICATION_USER);
         }
 
-        boardOperator.update(id, boardForm.convertBoardEntity(target.getWriter()));
+        boardOperator.update(new ObjectId(id), boardForm.convertBoardEntity(target.getWriter()));
     }
 
-    public void delete(ObjectId id, UserForm userForm) {
+    public void delete(String id, UserForm userForm) {
         UserEntity user = Optional.of(userRepository.findByAccountId(userForm.getAccountId())).orElseThrow(() -> new FreeBoardException(UserExceptionType.NOT_FOUND_USER));
-        BoardEntity target = Optional.of(boardRepository.findById(id).get()).orElseThrow(() -> new FreeBoardException(BoardExceptionType.NOT_FOUNT_CONTENTS));
+        BoardEntity target = Optional.of(boardRepository.findById(new ObjectId(id)).get()).orElseThrow(() -> new FreeBoardException(BoardExceptionType.NOT_FOUNT_CONTENTS));
 
         if (IsWriterEqualToUserLoggedIn.confirm(target.getWriter(), user) == false && HaveAdminRoles.confirm(user) == false) {
             throw new FreeBoardException(BoardExceptionType.NO_QUALIFICATION_USER);
         }
 
-        boardRepository.deleteById(id);
+        boardRepository.deleteById(new ObjectId(id));
     }
 
     public Page<BoardEntity> search(Pageable pageable, String keyword, SearchType type) {

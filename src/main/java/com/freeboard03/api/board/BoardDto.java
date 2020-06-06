@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 public class BoardDto{
 
-    private ObjectId id;
+    private String id;
     private UserDto writer;
     private String contents;
     private String title;
@@ -20,7 +20,7 @@ public class BoardDto{
 
     public BoardDto(BoardEntity board) {
         this.writer = UserDto.of(board.getWriter());
-        this.id = board.getId();
+        this.id = board.getId().toHexString();
         this.contents = board.getContents();
         this.title = board.getTitle();
         this.createdAt = board.getCreatedAt();
