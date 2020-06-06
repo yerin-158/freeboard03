@@ -45,7 +45,7 @@ public class BoardApiController {
     }
 
     @PutMapping("/{id}")
-    public void update(@RequestBody BoardForm form, @PathVariable ObjectId id) {
+    public void update(@RequestBody BoardForm form, @PathVariable String id) {
         if (httpSession.getAttribute("USER") == null) {
             throw new FreeBoardException(UserExceptionType.LOGIN_INFORMATION_NOT_FOUND);
         }
@@ -53,7 +53,7 @@ public class BoardApiController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable ObjectId id) {
+    public void delete(@PathVariable String id) {
         if (httpSession.getAttribute("USER") == null) {
             throw new FreeBoardException(UserExceptionType.LOGIN_INFORMATION_NOT_FOUND);
         }
