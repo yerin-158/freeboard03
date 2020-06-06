@@ -1,5 +1,6 @@
 package com.freeboard03.api.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.freeboard03.domain.user.UserEntity;
 import com.freeboard03.domain.user.UserRepository;
@@ -28,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/applicationContext.xml", "file:src/main/webapp/WEB-INF/dispatcher-servlet.xml"})
-@Transactional
 @WebAppConfiguration
 public class UserApiControllerTest {
 
@@ -42,10 +42,13 @@ public class UserApiControllerTest {
 
     private ObjectMapper objectMapper;
 
+    private UserEntity userEntity;
+
     @BeforeEach
     public void initMvc() {
         mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         objectMapper = new ObjectMapper();
+        userEntity = userRepository.findAll().get(0);
     }
 
     private String randomId(){
@@ -74,7 +77,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("동일한 아이디를 가진 유저가 있으면 가입에 실패한다.")
     public void joinTest2() throws Exception {
-        UserEntity userEntity = userRepository.findAll().get(0);
         UserForm userForm = UserForm.builder().accountId(userEntity.getAccountId()).password("password").build();
         mvc.perform(post("/api/users")
                 .content(objectMapper.writeValueAsString(userForm))
@@ -87,7 +89,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("비밀번호를 올바르게 입력하면 로그인되고, 세션에 저장된다.")
     public void loginTest1() throws Exception {
-        UserEntity userEntity = userRepository.findAll().get(0);
         UserForm userForm = UserForm.builder().accountId(userEntity.getAccountId()).password(userEntity.getPassword()).build();
 
         mvc.perform(post("/api/users?type=LOGIN")
@@ -100,7 +101,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("비밀번호를 올바르게 입력하지 않으면 로그인 거부된다.")
     public void loginTest2() throws Exception {
-        UserEntity userEntity = userRepository.findAll().get(0);
         UserForm userForm = UserForm.builder().accountId(userEntity.getAccountId()).password(userEntity.getPassword()+"wrongPass").build();
 
         mvc.perform(post("/api/users?type=LOGIN")
@@ -112,7 +112,19 @@ public class UserApiControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @DisplayName("가입되지 않은 계정으로 로그인 시도할 시 로그인에 실패한다.")
+    public void loginTest3() throws Exception {
+        UserForm userForm = UserForm.builder().accountId(randomId()).password("pass").build();
 
+        mvc.perform(post("/api/users?type=LOGIN")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(objectMapper.writeValueAsString(userForm)))
+                .andExpect(request().sessionAttribute("USER", nullValue()))
+                .andExpect(result -> assertEquals(result.getResolvedException().getClass().getCanonicalName(), FreeBoardException.class.getCanonicalName()))
+                .andExpect(result -> assertEquals(result.getResolvedException().getMessage(), UserExceptionType.NOT_FOUND_USER.getErrorMessage()))
+                .andExpect(status().isOk());
+    }
 
 }
 

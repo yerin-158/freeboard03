@@ -21,7 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/applicationContext.xml"})
-@Transactional
 public class BoardServiceIntegrationTest {
 
     @Autowired

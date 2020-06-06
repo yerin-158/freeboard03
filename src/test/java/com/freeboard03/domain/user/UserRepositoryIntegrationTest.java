@@ -12,7 +12,6 @@ import javax.transaction.Transactional;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/applicationContext.xml"})
-@Transactional
 @Rollback(value = false)
 public class UserRepositoryIntegrationTest {
 
