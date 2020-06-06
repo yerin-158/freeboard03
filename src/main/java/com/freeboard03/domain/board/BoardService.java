@@ -2,7 +2,6 @@ package com.freeboard03.domain.board;
 
 import com.freeboard03.api.board.BoardForm;
 import com.freeboard03.api.user.UserForm;
-import com.freeboard03.domain.board.entity.specs.BoardSpecs;
 import com.freeboard03.domain.board.enums.BoardExceptionType;
 import com.freeboard03.domain.board.enums.SearchType;
 import com.freeboard03.domain.user.UserEntity;
@@ -16,7 +15,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +23,6 @@ import java.util.Optional;
 
 
 @Service
-@Transactional
 public class BoardService {
 
     private BoardRepository boardRepository;

@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/applicationContext.xml"})
-@Transactional
 @Rollback
 public class PetRepositoryTest {
 

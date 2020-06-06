@@ -1,7 +1,6 @@
 package com.freeboard03.domain.pet;
 
 import com.mongodb.client.result.DeleteResult;
-import org.aspectj.lang.annotation.Before;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +26,6 @@ import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/applicationContext.xml"})
-@Transactional
 @Rollback
 public class PetTest {
 

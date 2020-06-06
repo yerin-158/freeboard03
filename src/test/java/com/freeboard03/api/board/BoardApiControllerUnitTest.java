@@ -14,7 +14,6 @@ import static org.mockito.Mockito.mock;
 
 @ExtendWith({MockitoExtension.class, SpringExtension.class})
 @ContextConfiguration(locations={"file:src/main/webapp/WEB-INF/applicationContext.xml", "file:src/main/webapp/WEB-INF/dispatcher-servlet.xml"})
-@Transactional
 public class BoardApiControllerUnitTest {
 
     @Mock

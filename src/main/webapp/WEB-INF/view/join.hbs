@@ -15,7 +15,7 @@
             <input type="password" class="form-control" id="accountPassword" required>
         </div>
     </form>
-    <button onclick='location.href="/freeboard01/"' class='btn btn-primary'>메인으로 이동</button>
+    <button onclick='location.href=mainURI' class='btn btn-primary'>메인으로 이동</button>
     <button onclick='join()' class='btn btn-primary'>가입하기</button>
 {{/partial}}
 <!--body-->
@@ -23,6 +23,8 @@
 <!--js-->
 {{#partial "js"}}
     <script>
+        const mainURI = "/"+window.location.pathname.split('/')[1]+"/";
+
         var join = () => {
             let account = new Object();
             var $joinForm = $('#joinForm');

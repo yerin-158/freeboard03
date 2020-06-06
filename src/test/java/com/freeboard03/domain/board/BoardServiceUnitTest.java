@@ -1,9 +1,11 @@
 package com.freeboard03.domain.board;
 
 import com.freeboard03.api.user.UserForm;
+import com.freeboard03.domain.board.enums.BoardExceptionType;
 import com.freeboard03.domain.user.UserEntity;
 import com.freeboard03.domain.user.UserRepository;
 import com.freeboard03.domain.user.enums.UserRole;
+import com.freeboard03.util.exception.FreeBoardException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +16,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
-import static org.mockito.ArgumentMatchers.anyLong;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -41,7 +45,11 @@ public class BoardServiceUnitTest {
         given(mockUserRepo.findByAccountId(anyString())).willReturn(userLoggedIn.convertUserEntity());
         given(mockBoardRepo.findById(any())).willReturn(Optional.of(boardEntity));
 
-        sut.delete(any(), userLoggedIn);
+        Throwable throwable = assertThrows(FreeBoardException.class, ()->{
+            sut.delete(any(), userLoggedIn);
+        });
+
+        assertEquals(BoardExceptionType.NO_QUALIFICATION_USER.getErrorMessage(), throwable.getMessage());
         verify(mockBoardRepo, never()).deleteById(any());
     }
 
