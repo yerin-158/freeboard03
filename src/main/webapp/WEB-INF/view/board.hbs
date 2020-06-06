@@ -144,11 +144,25 @@
             setAbleContents($modal);
         }
 
-        var setBoardForm = () => {
+        var getNewData = () => {
             var boardForm = new Object();
             var $modal = $('#boardModal');
             boardForm.title = $modal.find('#title').val();
             boardForm.contents = $modal.find('#contents').val();
+            return boardForm;
+        }
+
+        var getUpdatedData = () => {
+            var boardForm = new Object();
+            var $modal = $('#boardModal');
+
+            $.each(nowBoardList[nowBoardIndex], function (attribute, value) {
+                var modalValue = $modal.find('#'+attribute).val();
+                if(typeof modalValue != 'undefined' && value != modalValue){
+                    boardForm[attribute] = modalValue;
+                }
+            })
+
             return boardForm;
         }
 
@@ -219,33 +233,39 @@
 
         $(document).on('click', '#saveBtn', function () {
             $('#requiredBtn').click();
-            var boardForm = setBoardForm();
-            if (requiredInputHaveNullSpec(boardForm) == true) {
-                return false;
-            }
-            var method, url;
+
+            var method, url, data;
             if ($('#saveBtn').text() === WRITE) {
                 method = 'POST';
                 url = 'api/boards';
+                data = getNewData();
             } else {
                 method = 'PUT';
                 url = 'api/boards/' + nowBoardList[nowBoardIndex].id;
+                data = getUpdatedData();
+            }
+
+            if (requiredInputHaveNullSpec(data) == true) {
+                return false;
             }
 
             $.ajax({
                 method: method,
                 url: url,
                 contentType: 'application/json',
-                data: JSON.stringify(boardForm)
+                data: JSON.stringify(data)
             }).done(function (response) {
                 if (typeof response != 'undefined') {
                     if (typeof response.code != 'undefined') {
                         alert(response.message);
                     } else {
+                        debugger;
                         $('#boardModal').modal("hide"); //닫기
                     }
                 }
             })
+
+            return false;
         })
 
     </script>
